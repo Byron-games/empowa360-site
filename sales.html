@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sales Pipeline — Empowa360</title>
+<meta name="description" content="Manage active opportunities, deal stages, probabilities and historical revenue.">
+<meta property="og:title" content="Sales Pipeline — Empowa360">
+<meta property="og:description" content="Manage active opportunities, deal stages, probabilities and historical revenue.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="js/theme.js"></script>
+<link rel="stylesheet" href="css/app.css"><link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="sales">
+<main class="main"><div class="page">
+  <div class="page-head"><div><h1>Sales Pipeline</h1><p class="sub">Manage active opportunities and trace historical performance</p></div><div class="head-actions"><button class="btn btn-primary" id="addBtn"><span id="pIc"></span>New Deal</button></div></div>
+  <section id="stats"></section>
+  <section class="card card-pad" style="margin-bottom:24px"><div class="card-head"><div><h2>Monthly Revenue Trend</h2><p>Historical record of sales invoice totals</p></div>
+    <div class="legend" id="lg"><button data-i="0"><i style="background:var(--primary)"></i>Current Year</button><button data-i="1"><i style="background:#9CA3AF"></i>Previous Year</button></div></div>
+    <div class="chart-box" style="height:280px"><canvas id="rev" role="img" aria-label="Line chart of revenue by month"></canvas></div></section>
+  <section class="card" id="tbl"><div class="filters"><div class="search-field"><span id="sIc"></span><input class="input" id="q" type="search" placeholder="Search deals…" aria-label="Search deals" style="width:240px;height:36px"></div>
+    <select class="select" id="fStage" aria-label="Stage" style="width:auto;height:36px"><option value="">All stages</option><option>Discovery</option><option>Proposal</option><option>Negotiation</option><option>Closed Won</option><option>Closed Lost</option></select></div>
+    <div class="table-wrap"><table><thead></thead><tbody></tbody></table></div><div class="table-foot"><span class="info"></span><div class="pager"></div></div></section>
+</div></main>
+<script src="js/chart.umd.min.js"></script><script src="js/app.js"></script><script src="js/data.js"></script>
+<script>
+
+const { $, icon, esc, stats, money, fmtDate } = E;
+$('#sIc').innerHTML = icon('search', 16); $('#pIc').innerHTML = icon('plus', 16);
+stats('#stats', [
+  { label:'Total Revenue', icon:'file', count:428500, prefix:'$', delta:'+18.4%' },
+  { label:'Deals Won', icon:'check', tone:'green', count:48, delta:'+12.5%' },
+  { label:'Deals In Progress', icon:'trend', tone:'purple', count:18, delta:'−2.1%', dir:'down' },
+  { label:'Average Deal Size', icon:'users', tone:'amber', count:8920, prefix:'$', delta:'+4.2%' }]);
+const lg = E.chart('#rev', c => ({ type:'line', data:{ labels:['May','Jun','Jul','Aug','Sep','Oct'], datasets:[
+  { label:'Current Year', data:[42,58,46,72,70,96], borderColor:c.primary, backgroundColor:c.primary, pointRadius:4, pointHoverRadius:6, borderWidth:2.5, tension:.3 },
+  { label:'Previous Year', data:[34,40,44,52,50,61], borderColor:c.gray, backgroundColor:c.gray, pointRadius:0, pointHoverRadius:5, borderWidth:2, borderDash:[5,5], tension:.3 }] },
+  options:{ responsive:true, maintainAspectRatio:false, interaction:{ mode:'index', intersect:false }, plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:x => ` ${x.dataset.label}: $${x.parsed.y}k` } } },
+    scales:{ x:{ grid:{ display:false }, border:{ display:false } }, y:{ grid:{ color:c.grid }, border:{ display:false }, ticks:{ callback:v => '$' + v + 'k' } } } } }));
+$('#lg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const i = +b.dataset.i, ch = lg.inst, v = ch.isDatasetVisible(i); ch.setDatasetVisibility(i, !v); b.classList.toggle('off', v); ch.update(); });
+const TONE = { 'Closed Won':'green', Proposal:'purple', Negotiation:'amber', Discovery:'blue', 'Closed Lost':'red' };
+const t = E.table({ el:'#tbl', data:D.deals(), label:'deals', pager:'simple', search:'#q', pageSize:8, text:r => [r.name,r.company,r.stage,r.owner].join(' '),
+  cols:[
+    { label:'Deal name', key:'name', sort:true, render:r => `<b>${esc(r.name)}</b>` }, { label:'Company', key:'company', sort:true },
+    { label:'Value', key:'value', sort:true, render:r => `<span class="money">${money(r.value)}</span>` },
+    { label:'Stage', key:'stage', sort:true, render:r => `<span class="pill ${TONE[r.stage]}">${r.stage}</span>` },
+    { label:'Probability', key:'prob', sort:true, render:r => `<div style="display:flex;align-items:center;gap:10px;min-width:110px"><div class="bar" style="flex:1;height:6px"><i data-w="${r.prob}" class="${r.prob >= 70 ? 'green' : r.prob >= 30 ? '' : 'red'}"></i></div><b>${r.prob}%</b></div>` },
+    { label:'Owner', key:'owner', sort:true, render:r => `<b>${esc(r.owner)}</b>` }, { label:'Expected close', key:'close', sort:true, render:r => fmtDate(r.close) }],
+  onRender() { E.bars($('#tbl')); } });
+$('#fStage').addEventListener('change', e => t.setPred(e.target.value ? r => r.stage === e.target.value : null));
+$('#addBtn').addEventListener('click', () => F.deal(it => t.setData([it, ...t.all])));
+
+</script>
+</body>
+</html>

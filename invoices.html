@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Invoices — Empowa360</title>
+<meta name="description" content="Monitor customer billing, due dates and collection status.">
+<meta property="og:title" content="Invoices — Empowa360">
+<meta property="og:description" content="Monitor customer billing, due dates and collection status.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="js/theme.js"></script>
+<link rel="stylesheet" href="css/app.css"><link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="invoices">
+<main class="main"><div class="page">
+  <div class="page-head"><div><h1>Invoices</h1><p class="sub">Monitor customer billing and historical collection status</p></div><div class="head-actions"><button class="btn btn-primary" id="addBtn"><span id="pIc"></span>Create Invoice</button></div></div>
+  <section id="stats"></section>
+  <section class="card" id="tbl">
+    <div class="filters"><div class="search-field"><span id="sIc"></span><input class="input" id="q" type="search" placeholder="Search invoices or clients…" aria-label="Search invoices" style="width:260px;height:36px"></div>
+      <select class="select" id="fStatus" aria-label="Status" style="width:auto;height:36px"><option value="">All statuses</option><option>Paid</option><option>Pending</option><option>Overdue</option><option>Draft</option></select></div>
+    <div class="table-wrap"><table><thead></thead><tbody></tbody></table></div><div class="table-foot"><span class="info"></span><div class="pager"></div></div></section>
+</div></main>
+<script src="js/app.js"></script><script src="js/data.js"></script>
+<script>
+
+const { $, icon, esc, stats, money, fmtDate } = E;
+$('#sIc').innerHTML = icon('search', 16); $('#pIc').innerHTML = icon('plus', 16);
+stats('#stats', [
+  { label:'Total Invoiced', icon:'file', count:256400, prefix:'$', delta:'+18.4%' },
+  { label:'Paid', icon:'check', tone:'green', count:167300, prefix:'$', delta:'+12.5%' },
+  { label:'Pending', icon:'file', tone:'amber', count:83200, prefix:'$', delta:'−2.1%', dir:'down' },
+  { label:'Overdue Amount', icon:'file', tone:'red', count:5900, prefix:'$', delta:'+4.2%', dir:'warn' }]);
+const TONE = { Paid:'green', Pending:'amber', Overdue:'red', Draft:'gray' };
+const t = E.table({ el:'#tbl', data:D.invoices(), label:'invoices', pager:'simple', search:'#q', text:r => [r.id,r.client,r.status].join(' '),
+  cols:[
+    { label:'Invoice #', key:'id', sort:true, render:r => `<b>${r.id}</b>` }, { label:'Client', key:'client', sort:true },
+    { label:'Amount', key:'amount', sort:true, render:r => `<span class="money">${money(r.amount, 2)}</span>` },
+    { label:'Issue date', key:'issued', sort:true, render:r => fmtDate(r.issued) }, { label:'Due date', key:'due', sort:true, render:r => fmtDate(r.due) },
+    { label:'Status', key:'status', sort:true, render:r => `<span class="pill ${TONE[r.status]}">${r.status}</span>` },
+    { label:'Actions', cls:'num', render:r => `<button class="link" data-v="${r.id}" style="background:none;border:0">View</button>` }] });
+$('#fStatus').addEventListener('change', e => t.setPred(e.target.value ? r => r.status === e.target.value : null));
+$('#addBtn').addEventListener('click', () => F.invoice(it => t.setData([it, ...t.all])));
+$('#tbl').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; const r = t.all.find(x => x.id === b.dataset.v);
+  const m = E.modal({ title:r.id, sub:r.client, cancel:'Close', submit:false, html:`<dl class="dl"><dt>Amount</dt><dd class="money">${money(r.amount, 2)}</dd><dt>Issued</dt><dd>${fmtDate(r.issued)}</dd><dt>Due</dt><dd>${fmtDate(r.due)}</dd><dt>Status</dt><dd><span class="pill ${TONE[r.status]}">${r.status}</span></dd></dl><div class="modal-foot" style="padding-top:0"><button class="btn btn-outline" id="dlInv">Download CSV</button>${r.status === 'Pending' || r.status === 'Overdue' ? '<button class="btn btn-primary" id="payInv">Mark as paid</button>' : ''}</div>` });
+  m.el.querySelector('#dlInv').onclick = () => { E.download(r.id + '.csv', E.csv([['Invoice','Client','Amount','Issued','Due','Status'], [r.id,r.client,r.amount,r.issued,r.due,r.status]])); E.toast('Invoice downloaded', 'ok'); };
+  const p = m.el.querySelector('#payInv'); if (p) p.onclick = async () => { await E.busy(p, 600); r.status = 'Paid'; m.close(); t.refresh(); E.toast(`${r.id} marked as paid`, 'ok'); };
+});
+
+</script>
+</body>
+</html>

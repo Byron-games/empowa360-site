@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notifications & Messages — Empowa360</title>
+<meta name="description" content="Team conversations and automated CRM notifications in one inbox.">
+<meta property="og:title" content="Notifications & Messages — Empowa360">
+<meta property="og:description" content="Team conversations and automated CRM notifications in one inbox.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="js/theme.js"></script>
+<link rel="stylesheet" href="css/app.css"><link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="messages">
+<main class="main"><div class="page">
+  <div class="page-head"><div><h1>Notifications &amp; Messages</h1><p class="sub">Stay updated with team collaborations and automated CRM events</p></div>
+    <div class="head-actions"><button class="link" id="markAll" style="background:none;border:0;font-size:14px">Mark All Read</button><div class="seg" id="tabs" role="group" aria-label="Filter messages"><button class="on" data-t="all">All</button><button data-t="unread">Unread</button><button data-t="mention">Mentions</button></div></div></div>
+  <div class="msg-layout">
+    <section class="card msg-list"><div class="msg-scroll" id="list"></div></section>
+    <section class="card chat" id="chat"></section>
+  </div>
+</div></main>
+<script src="js/app.js"></script>
+<script>
+
+const { $, $$, icon, esc, avatar } = E;
+const now = () => new Date().toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+const C = [
+  { id:'dm', name:'David Miller', kind:'chat', prev:'Sent you the project specifications document.', time:'2 hours ago', unread:true, msgs:[
+    ['David Miller','11:04 AM',"Hi Elizabeth, I've updated the mapping rules for HubSpot. Can you check if the lead status translates correctly now?"],
+    ['me','11:15 AM','Just saw your push. Let me check the integration stream. The standard CRM leads should route to the Active queue immediately.'],
+    ['me','11:20 AM','Confirmed! I see the test record mapping perfectly. Great work on resolving the state translation mapping issue.'],
+    ['David Miller','11:22 AM','Awesome! I will go ahead and trigger the backlog synchronization. That should pull the 14 remaining leads into the dashboard.']] },
+  { id:'s1', name:'System Hub', kind:'system', prev:'Invoice #INV-2026-004 is now overdue.', time:'4 hours ago', unread:true, title:'Invoice overdue', body:'Invoice INV-2026-004 for Siberia Tech ($22,100.00) passed its due date. Send a reminder to keep collection on track.', link:['Review invoice','invoices.html?q=INV-2026-004'] },
+  { id:'sj', name:'Sarah Jenkins', kind:'chat', mention:true, prev:'Mentioned you in the lead overview sheet.', time:'Yesterday', unread:false, msgs:[['Sarah Jenkins','Yesterday','@Elizabeth can you confirm the Q4 targets in the lead overview sheet before Friday?']] },
+  { id:'s2', name:'System Hub', kind:'system', prev:'New task assigned: Review October commissions.', time:'Oct 15', title:'New task assigned', body:'“Review October commissions” was assigned to you with a due date next week.', link:['Open tasks','tasks.html'] },
+  { id:'hs', name:'HubSpot Integrator', kind:'system', prev:'Successfully completed automated sync.', time:'Oct 14', title:'Sync completed', body:'The automated HubSpot sync finished without errors. 14 leads were pulled into the Active queue.', link:['View leads','leads.html'] },
+  { id:'dm2', name:'David Miller', kind:'chat', prev:'Do you have the contact details for Nexa?', time:'Oct 13', msgs:[['David Miller','Oct 13','Do you have the contact details for Nexa?']] },
+  { id:'em', name:'Elizabeth Mercer', kind:'system', prev:'Draft follow-up email sequence is complete.', time:'Oct 12', title:'Draft complete', body:'Your draft follow-up email sequence is complete and ready for review.', link:['Open tasks','tasks.html'] },
+  { id:'s3', name:'System Hub', kind:'system', prev:'Leads database backup has finished.', time:'Oct 10', title:'Backup finished', body:'The nightly leads database backup finished successfully.', link:null }
+];
+const REPLIES = ['Got it, thanks Elizabeth. I will take a look and circle back shortly.', 'Makes sense. Let me confirm with the team and update you today.', 'Perfect, that works on my side.', 'Thanks for the heads up, I will pick this up next.'];
+let tab = 'all', sel = 'dm', ri = 0;
+function drawList() {
+  const items = C.filter(c => tab === 'all' || (tab === 'unread' && c.unread) || (tab === 'mention' && c.mention));
+  $('#list').innerHTML = items.map(c => `<button class="conv${c.id === sel ? ' on' : ''}${c.unread ? ' unread' : ''}" data-id="${c.id}">${avatar(c.name, 36)}<div class="c-main"><div class="c-top"><b>${esc(c.name)}</b><time>${c.time}</time></div><p>${esc(c.prev)}</p></div></button>`).join('') || '<div class="empty">Nothing here. You are all caught up.</div>';
+}
+const bubble = m => m[0] === 'me' ? `<div class="bubble me"><div class="meta"><b>Elizabeth Mercer</b>${m[1]}</div><div class="txt">${esc(m[2])}</div></div>` : `<div class="bubble"><div class="meta"><b>${esc(m[0])}</b>${m[1]}</div><div class="txt">${esc(m[2])}</div></div>`;
+function drawChat() {
+  const c = C.find(x => x.id === sel), el = $('#chat'); if (!c) { el.innerHTML = '<div class="empty" style="margin:auto">Select a conversation</div>'; return; }
+  if (c.kind === 'system') { el.innerHTML = `<div class="chat-head">${avatar(c.name, 40)}<div><b>${esc(c.name)}</b><small style="color:var(--text-3)">Automated notification · ${c.time}</small></div></div><div class="note-detail"><span class="pill blue">${esc(c.title)}</span><h2 style="font-size:20px;letter-spacing:-.01em">${esc(c.prev)}</h2><p style="color:var(--text-2);line-height:1.6;max-width:560px">${esc(c.body)}</p>${c.link ? `<div><a class="btn btn-primary" href="${c.link[1]}">${c.link[0]}</a></div>` : ''}</div>`; return; }
+  el.innerHTML = `<div class="chat-head">${avatar(c.name, 40)}<div><b>${esc(c.name)}</b><small>Active Now</small></div><button class="icon-btn" id="call" style="margin-left:auto" aria-label="Start call">${icon('phone', 20)}</button></div>
+    <div class="chat-body" id="cb">${c.msgs.map(bubble).join('')}</div>
+    <form class="composer" id="cf"><input class="input" id="ci" placeholder="Type your message here…" autocomplete="off" aria-label="Message"><input type="file" id="cfile" hidden><button type="button" class="icon-btn" id="attach" aria-label="Attach file">${icon('clip', 20)}</button><button class="send" aria-label="Send">${icon('send', 18)}</button></form>`;
+  const cb = $('#cb'); cb.scrollTop = cb.scrollHeight;
+  $('#call').onclick = () => E.toast('Voice calls need a telephony integration. None is connected yet.', 'info');
+  $('#attach').onclick = () => $('#cfile').click();
+  $('#cfile').onchange = e => { const f = e.target.files[0]; if (f) push('me', `Attached: ${f.name}`, c); };
+  $('#cf').onsubmit = e => { e.preventDefault(); const v = $('#ci').value.trim(); if (!v) return; $('#ci').value = ''; push('me', v, c); };
+}
+function push(who, text, c) {
+  c.msgs.push([who === 'me' ? 'me' : c.name, now(), text]); c.prev = (who === 'me' ? 'You: ' : '') + text; c.time = 'Just now';
+  const cb = $('#cb'); cb.insertAdjacentHTML('beforeend', bubble(c.msgs[c.msgs.length - 1])); cb.scrollTop = cb.scrollHeight; drawList();
+  if (who !== 'me') return;
+  cb.insertAdjacentHTML('beforeend', `<div class="bubble" id="typing"><div class="txt typing"><i></i><i></i><i></i></div></div>`); cb.scrollTop = cb.scrollHeight;
+  setTimeout(() => { const t = $('#typing'); t && t.remove(); if (sel === c.id) push('them', REPLIES[ri++ % REPLIES.length], c); else { c.msgs.push([c.name, now(), REPLIES[ri++ % REPLIES.length]]); c.unread = true; drawList(); } }, 1400);
+}
+$('#list').addEventListener('click', e => { const b = e.target.closest('[data-id]'); if (!b) return; sel = b.dataset.id; const c = C.find(x => x.id === sel); c.unread = false; drawList(); drawChat(); });
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; tab = b.dataset.t; $$('#tabs button').forEach(x => x.classList.toggle('on', x === b)); drawList(); });
+$('#markAll').addEventListener('click', () => { C.forEach(c => c.unread = false); E.store.set('notifRead', true); $$('#mailDot,#bellDot').forEach(d => d.classList.add('off')); drawList(); E.toast('All notifications marked as read', 'ok'); });
+drawList(); drawChat();
+
+</script>
+</body>
+</html>

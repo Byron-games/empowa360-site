@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create Account — Empowa360</title>
+<meta name="description" content="Start your 14-day free Empowa360 trial. No credit card required.">
+<meta property="og:title" content="Create Account — Empowa360">
+<meta property="og:description" content="Start your 14-day free Empowa360 trial. No credit card required.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="js/theme.js"></script>
+<link rel="stylesheet" href="css/app.css"><link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<div class="auth"><section class="auth-form"><button class="icon-btn auth-theme" data-theme-btn></button><div class="auth-box"><a class="brand auth-mobile-brand" href="index.html" data-brand></a>
+  <h1>Create Account</h1><p class="sub">No credit card required. Get instant access.</p>
+  <form id="f" novalidate>
+   <div class="name-row"><div class="field"><label for="fn">First Name</label><input class="input" id="fn" placeholder="Elizabeth" autocomplete="given-name"><div class="err" id="e_fn"></div></div><div class="field"><label for="ln">Last Name</label><input class="input" id="ln" placeholder="Mercer" autocomplete="family-name"><div class="err" id="e_ln"></div></div></div>
+   <div class="field"><label for="em">Work Email</label><input class="input" id="em" type="email" placeholder="you@company.com" autocomplete="email"><div class="err" id="e_em"></div></div>
+   <div class="field"><label for="co">Company Name</label><input class="input" id="co" placeholder="Acme Corporation" autocomplete="organization"><div class="err" id="e_co"></div></div>
+   <div class="field"><label for="pw">Password</label><div class="pw"><input class="input" id="pw" type="password" placeholder="Create a strong password" autocomplete="new-password"><button type="button" class="reveal-pw" data-for="pw" aria-label="Show password"></button></div><div class="meter" aria-live="polite"><i></i><i></i><i></i><i></i><span id="ml"></span></div><div class="err" id="e_pw"></div></div>
+   <label class="terms"><input class="check" type="checkbox" id="tm"><span>I agree to the <a class="link" href="#" data-soon>Terms of Service</a> and <a class="link" href="#" data-soon>Privacy Policy</a>.</span></label><div class="err" id="e_tm" style="margin-top:-10px"></div>
+   <button class="btn btn-primary btn-block" type="submit">Create Account</button></form>
+  <div class="or">OR SIGN UP WITH</div><div class="socials"><button class="btn btn-outline" type="button" data-soc="Google"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h6.2a5.3 5.3 0 0 1-2.3 3.5v2.9h3.7c2.2-2 3.4-5 3.4-8.4z"/><path fill="#34A853" d="M12 24c3.1 0 5.7-1 7.6-2.8l-3.7-2.9c-1 .7-2.3 1.1-3.9 1.1-3 0-5.5-2-6.4-4.7H1.8v3A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.6 14.7a7.2 7.2 0 0 1 0-4.6v-3H1.8a12 12 0 0 0 0 10.6z"/><path fill="#EA4335" d="M12 4.8c1.7 0 3.2.6 4.4 1.7l3.3-3.3A12 12 0 0 0 1.8 7.1l3.8 3C6.5 6.8 9 4.8 12 4.8z"/></svg>Google</button><button class="btn btn-outline" type="button" data-soc="Microsoft"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#F25022" d="M2 2h9.5v9.5H2z"/><path fill="#7FBA00" d="M12.5 2H22v9.5h-9.5z"/><path fill="#00A4EF" d="M2 12.5h9.5V22H2z"/><path fill="#FFB900" d="M12.5 12.5H22V22h-9.5z"/></svg>Microsoft</button></div><p class="alt">Already have an account? <a class="link" href="login.html">Sign In</a></p></div></section><div class="auth-art"><div><a class="brand" href="index.html" data-brand></a><p class="tag">Start Your 14-Day Free Trial</p></div><div class="dots" aria-hidden="true"></div>
+  <div class="float-card" aria-hidden="true"><div class="top"><span>Active Pipelines</span><span class="chip" id="fc"></span></div><b>$1.2M Revenue</b><small>+15.3% <span>vs last month</span></small></div>
+  <div><h2>The ultimate platform for modern sales teams</h2><p class="s">Integrate your pipeline, manage contracts, track invoices, and analyze growth in real time.</p></div></div></div>
+<script src="js/app.js"></script>
+<script>
+
+const { $, $$, icon } = E;
+$('#fc').innerHTML = icon('users', 16);
+$$('.reveal-pw').forEach(b => { b.innerHTML = icon('eye', 18); b.addEventListener('click', () => { const i = $('#' + b.dataset.for), show = i.type === 'password'; i.type = show ? 'text' : 'password'; b.innerHTML = icon(show ? 'eyeoff' : 'eye', 18); b.setAttribute('aria-label', show ? 'Hide password' : 'Show password'); }); });
+$$('[data-soc]').forEach(b => b.addEventListener('click', () => E.toast(b.dataset.soc + ' sign-in needs a backend OAuth setup. Not connected yet.', 'info')));
+const bad = (id, msg) => { const el = $('#' + id), er = $('#e_' + id); el.classList.toggle('bad', !!msg); er.textContent = msg || ''; return !msg; };
+const mail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+const q = new URLSearchParams(location.search); if (q.get('email')) $('#em').value = q.get('email');
+const LV = [['','var(--text-3)'],['Weak','#EF4444'],['Fair','#F59E0B'],['Good','#10B981'],['Strong','#059669']];
+function score(p) { let n = 0; if (p.length >= 8) n++; if (/[a-z]/.test(p) && /[A-Z]/.test(p)) n++; if (/\d/.test(p)) n++; if (/[^A-Za-z0-9]/.test(p) && p.length >= 8) n++; return p ? Math.max(1, n) : 0; }
+$('#pw').addEventListener('input', () => { const n = score($('#pw').value); $$('.meter i').forEach((b, i) => b.style.background = i < n ? LV[n][1] : ''); const l = $('#ml'); l.textContent = LV[n][0]; l.style.color = LV[n][1]; });
+document.addEventListener('click', e => { if (e.target.closest('[data-soon]')) { e.preventDefault(); E.toast('Legal pages are not built yet.', 'info'); } });
+$('#f').addEventListener('submit', async e => { e.preventDefault();
+  const r = [bad('fn', !$('#fn').value.trim() ? 'Required' : ''), bad('ln', !$('#ln').value.trim() ? 'Required' : ''), bad('em', !mail($('#em').value.trim()) ? 'Enter a valid work email' : ''), bad('co', !$('#co').value.trim() ? 'Company name is required' : ''), bad('pw', score($('#pw').value) < 2 ? 'Use 8+ characters with upper and lower case letters and a number' : ''), bad('tm', !$('#tm').checked ? 'You must accept the terms to continue' : '')];
+  if (r.includes(false)) { const f = ['#fn','#ln','#em','#co','#pw','#tm'][r.indexOf(false)]; $(f).focus(); return; }
+  await E.busy(e.submitter, 1000); E.toast('Account created. Redirecting to your dashboard…', 'ok'); setTimeout(() => location.href = 'dashboard.html', 700); });
+
+</script>
+</body>
+</html>

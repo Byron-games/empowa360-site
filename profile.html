@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Profile — Empowa360</title>
+<meta name="description" content="View and update your personal professional workspace and activity.">
+<meta property="og:title" content="My Profile — Empowa360">
+<meta property="og:description" content="View and update your personal professional workspace and activity.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="js/theme.js"></script>
+<link rel="stylesheet" href="css/app.css"><link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="profile">
+<main class="main"><div class="page">
+  <div class="page-head"><div><h1 id="h1">My Profile</h1><p class="sub" id="sub">View and update your personal professional workspace</p></div><div class="head-actions" id="actions"><button class="btn btn-primary" id="editBtn">Edit Profile</button></div></div>
+  <section class="card profile-card" id="hero" style="margin-bottom:16px"></section>
+  <div class="grid-2" style="align-items:start">
+    <section class="card card-pad"><div class="card-head"><h2>Personal Information</h2></div><form class="form-stack" id="pf" novalidate></form></section>
+    <section class="card card-pad"><div class="card-head"><h2>Activity Summary</h2></div><div class="mini-grid" id="mini"></div></section>
+  </div>
+  <section class="card card-pad"><div class="card-head"><h2>Recent Activity</h2></div><div id="act"></div></section>
+</div></main>
+<script src="js/app.js"></script><script src="js/data.js"></script>
+<script>
+
+const { $, $$, esc, avatar } = E;
+const who = new URLSearchParams(location.search).get('m'), member = who && D.team().find(m => m.name === who);
+const base = member ? { name:member.name, email:member.email, phone:'—', dept:member.dept, role:member.role, joined:'June 3, 2024', loc:'New York, USA' }
+  : { name:'Elizabeth Mercer', email:'elizabeth.mercer@empowa360.com', phone:'+1 (555) 234-5678', dept:'Global Sales Operations', role:'Sales Operations Lead', joined:'March 12, 2024', loc:'New York, USA', ...E.store.get('profile', {}) };
+const mine = !member;
+function hero() { $('#hero').innerHTML = `${avatar(base.name, 88)}<div><h2>${esc(base.name)}</h2><div style="color:var(--text-2);margin-top:2px">${esc(base.role)}</div><div class="profile-meta"><span>${esc(base.email)}</span><span>${esc(base.phone)}</span><span>${esc(base.loc)}</span></div></div>`; }
+const F2 = [['name','Full name'],['email','Email address'],['phone','Phone number'],['dept','Department'],['role','Role'],['joined','Date joined']];
+$('#pf').innerHTML = F2.map(f => `<div class="field"><label for="f_${f[0]}">${f[1]}</label><input class="input" id="f_${f[0]}" name="${f[0]}" value="${esc(base[f[0]])}" readonly></div>`).join('');
+if (member) { $('#h1').textContent = member.name; $('#sub').textContent = `${member.role} · ${member.dept}`; $('#actions').innerHTML = '<a class="btn btn-outline" href="team.html">Back to team</a>'; document.title = member.name + ' — Empowa360'; }
+hero();
+const MINI = member ? [['Tasks Completed',64,''],['Projects Active',3,'var(--primary)'],['Deals Closed',9,'var(--green)'],['Reports Generated',12,'']] : [['Tasks Completed',145,''],['Projects Active',8,'var(--primary)'],['Deals Closed',23,'var(--green)'],['Reports Generated',34,'']];
+$('#mini').innerHTML = MINI.map((m, i) => `<div class="mini"><span>${m[0]}</span><b data-n="${i}" style="${m[2] ? 'color:' + m[2] : ''}">0</b></div>`).join('');
+MINI.forEach((m, i) => E.countUp($(`[data-n="${i}"]`), m[1]));
+$('#act').innerHTML = [['Created lead','Acme Corp - Enterprise Trial','2 hours ago'],['Closed deal','Nexa Partners ($24,500 ARR)','Yesterday'],['Generated report','Quarterly pipeline projection','Oct 15'],['Assigned tasks','Assigned 4 new items to David Miller','Oct 14']].map(a => `<div class="act-row"><i class="dot"></i><div><b>${a[0]}</b><span>${a[1]}</span></div><time>${a[2]}</time></div>`).join('');
+let editing = false;
+function setEdit(on) {
+  editing = on; $$('#pf input').forEach(i => { if (i.name !== 'joined') i.readOnly = !on; });
+  $('#actions').innerHTML = on ? '<button class="btn btn-outline" id="cancel">Cancel</button><button class="btn btn-primary" id="save">Save Changes</button>' : '<button class="btn btn-primary" id="editBtn">Edit Profile</button>';
+  bind(); if (on) $('#f_name').focus();
+}
+function bind() {
+  const e = $('#editBtn'); if (e) e.onclick = () => setEdit(true);
+  const c = $('#cancel'); if (c) c.onclick = () => { F2.forEach(f => $('#f_' + f[0]).value = base[f[0]]); setEdit(false); };
+  const s = $('#save'); if (s) s.onclick = async () => {
+    const v = {}; F2.forEach(f => v[f[0]] = $('#f_' + f[0]).value.trim());
+    if (!v.name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)) { E.toast('Enter a name and a valid email', 'err'); return; }
+    await E.busy(s, 700); Object.assign(base, v); E.store.set('profile', v); hero(); setEdit(false); E.toast('Profile updated', 'ok');
+  };
+}
+if (mine) bind();
+
+</script>
+</body>
+</html>

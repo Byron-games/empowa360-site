@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leads — Empowa360</title>
+<meta name="description" content="Track and qualify potential customer acquisitions across sources and owners.">
+<meta property="og:title" content="Leads — Empowa360">
+<meta property="og:description" content="Track and qualify potential customer acquisitions across sources and owners.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="js/theme.js"></script>
+<link rel="stylesheet" href="css/app.css"><link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="leads">
+<main class="main"><div class="page">
+  <div class="page-head"><div><h1>Leads Management</h1><p class="sub">Track and qualify potential customer acquisitions</p></div><div class="head-actions"><button class="btn btn-primary" id="addBtn"><span id="pIc"></span>Add Lead</button></div></div>
+  <section id="stats"></section>
+  <section class="card" style="margin-bottom:16px">
+    <div class="filters"><span class="lbl">Filters:</span><div id="chips" role="group" aria-label="Lead filters"><button class="fchip on" data-f="all">All Leads</button> <button class="fchip" data-f="qualified">Qualified</button> <button class="fchip" data-f="new">New</button></div>
+      <div class="search-field" style="margin-left:16px"><span id="sIc"></span><input class="input" id="q" type="search" placeholder="Search leads…" aria-label="Search leads" style="width:220px;height:36px"></div>
+      <button class="btn btn-ghost btn-sm" id="moreBtn" style="margin-left:auto" aria-expanded="false"><span id="fIc"></span>More Filters</button></div>
+    <div class="more-filters" id="more"><select class="select" id="fSource" aria-label="Source"><option value="">All sources</option></select><select class="select" id="fOwner" aria-label="Owner"><option value="">All owners</option></select><select class="select" id="fStatus" aria-label="Status"><option value="">All statuses</option><option>New</option><option>Contacted</option><option>Qualified</option><option>Proposal</option><option>Won</option><option>Lost</option></select></div>
+  </section>
+  <section class="card" id="tbl"><div class="table-wrap"><table><thead></thead><tbody></tbody></table></div><div class="table-foot"><span class="info"></span><div class="pager"></div></div></section>
+</div></main>
+<script src="js/app.js"></script><script src="js/data.js"></script>
+<script>
+
+const { $, icon, esc, stats } = E;
+$('#sIc').innerHTML = icon('search', 16); $('#fIc').innerHTML = icon('sliders', 16); $('#pIc').innerHTML = icon('plus', 16);
+stats('#stats', [
+  { label:'Total Leads', icon:'users', count:1847, delta:'+12.3%' },
+  { label:'New This Month', icon:'userplus', tone:'purple', count:284, delta:'+8.1%' },
+  { label:'Qualified Leads', icon:'check', tone:'green', count:1120, delta:'+4.5%' },
+  { label:'Conversion Rate', icon:'trend', tone:'amber', count:24.3, suffix:'%', decimals:1, delta:'−1.2%', dir:'down' }]);
+const TONE = { New:'blue', Contacted:'amber', Qualified:'green', Proposal:'purple', Won:'green', Lost:'red' };
+D.SOURCES.forEach(s => $('#fSource').insertAdjacentHTML('beforeend', `<option>${s}</option>`)); D.OWNERS.forEach(s => $('#fOwner').insertAdjacentHTML('beforeend', `<option>${s}</option>`));
+const short = n => n === 'Elizabeth Mercer' ? 'Elizabeth M.' : n;
+const t = E.table({ el:'#tbl', data:D.leads(), label:'leads', pager:'numbers', search:'#q', text:r => [r.name,r.company,r.email,r.source,r.owner].join(' '),
+  rowAttr:r => `data-id="${r.id}" style="cursor:pointer"`,
+  cols:[
+    { label:'Lead name', key:'name', sort:true, render:r => `<b>${esc(r.name)}</b>` }, { label:'Company', key:'company', sort:true }, { label:'Email', key:'email' },
+    { label:'Status', key:'status', sort:true, render:r => `<span class="pill ${TONE[r.status]}">${r.status}</span>` }, { label:'Source', key:'source', sort:true },
+    { label:'Assigned to', key:'owner', sort:true, render:r => `<b>${esc(short(r.owner))}</b>` }, { label:'Last contact', key:'last', sort:true, render:r => E.fmtDate(r.last) }] });
+let chip = 'all'; const f = { source:'', owner:'', status:'' };
+const QUAL = ['Qualified','Proposal','Won'];
+function pred() { t.setPred(r => (chip === 'all' || (chip === 'new' ? r.status === 'New' : QUAL.includes(r.status))) && (!f.source || r.source === f.source) && (!f.owner || r.owner === f.owner) && (!f.status || r.status === f.status)); }
+$('#chips').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; chip = b.dataset.f; E.$$('.fchip').forEach(c => c.classList.toggle('on', c === b)); pred(); });
+[['#fSource','source'],['#fOwner','owner'],['#fStatus','status']].forEach(([s, k]) => $(s).addEventListener('change', e => { f[k] = e.target.value; pred(); }));
+$('#moreBtn').addEventListener('click', e => { const o = $('#more').classList.toggle('open'); e.currentTarget.setAttribute('aria-expanded', o); });
+$('#addBtn').addEventListener('click', () => F.lead(it => t.setData([it, ...t.all])));
+$('#tbl').addEventListener('click', e => { const tr = e.target.closest('tr[data-id]'); if (!tr) return; const r = t.all.find(x => x.id === tr.dataset.id);
+  E.modal({ title:r.name, sub:`${r.company} · ${r.email}`, submit:'Save changes', fields:[{ name:'status', label:'Status', type:'select', options:Object.keys(TONE), value:r.status }, { name:'owner', label:'Assigned to', type:'select', options:D.OWNERS, value:r.owner }], onSubmit:v => { Object.assign(r, v); t.refresh(); E.toast('Lead updated', 'ok'); } }); });
+
+</script>
+</body>
+</html>

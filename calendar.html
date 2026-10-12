@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendar — Empowa360</title>
+<meta name="description" content="Schedule meetings, deadlines and reviews with month, week and day views.">
+<meta property="og:title" content="Calendar — Empowa360">
+<meta property="og:description" content="Schedule meetings, deadlines and reviews with month, week and day views.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="js/theme.js"></script>
+<link rel="stylesheet" href="css/app.css"><link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="calendar">
+<main class="main"><div class="page">
+  <div class="page-head"><div><h1>Calendar</h1><p class="sub">Schedule and coordinate team commitments</p></div>
+    <div class="head-actions"><div class="seg" id="views" role="group" aria-label="Calendar view"><button class="on" data-v="month">Month</button><button data-v="week">Week</button><button data-v="day">Day</button></div><button class="btn btn-primary" id="addBtn"><span id="pIc"></span>New Event</button></div></div>
+  <div class="cal-layout">
+    <section class="card" style="overflow:hidden"><div class="cal-head"><h2 id="title"></h2><div class="cal-nav"><button class="btn btn-outline btn-sm" id="today">Today</button><button class="icon-btn" id="prev" aria-label="Previous"><span id="lIc"></span></button><button class="icon-btn" id="next" aria-label="Next"><span id="rIc"></span></button></div></div><div id="body"></div></section>
+    <aside class="card card-pad"><div class="card-head" style="margin-bottom:16px"><h2>Upcoming Events</h2></div><div id="upcoming" style="display:grid;gap:12px"></div></aside>
+  </div>
+</div></main>
+<script src="js/app.js"></script><script src="js/data.js"></script>
+<script>
+
+const { $, $$, icon, esc, isoDay, addDays } = E;
+$('#pIc').innerHTML = icon('plus', 16); $('#lIc').innerHTML = icon('left', 18); $('#rIc').innerHTML = icon('right', 18);
+let view = 'month', cur = new Date(); cur.setHours(12, 0, 0, 0);
+const todayISO = isoDay(new Date());
+const TAG = { blue:'Meeting', green:'Deadline', purple:'Review' };
+const fmtT = t => { const [h, m] = t.split(':').map(Number); return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; };
+const byTime = (a, b) => (a.date + a.start).localeCompare(b.date + b.start);
+const evOn = (list, iso) => list.filter(e => e.date === iso).sort(byTime);
+function draw() {
+  const list = D.events(), body = $('#body'), y = cur.getFullYear(), m = cur.getMonth();
+  if (view === 'month') {
+    $('#title').textContent = cur.toLocaleDateString('en-US', { month:'long', year:'numeric' });
+    const first = new Date(y, m, 1, 12), start = addDays(-first.getDay(), first), weeks = Math.ceil((first.getDay() + new Date(y, m + 1, 0).getDate()) / 7);
+    let h = '<div class="cal-dow">' + ['SUN','MON','TUE','WED','THU','FRI','SAT'].map(d => `<div>${d}</div>`).join('') + '</div><div class="cal-grid" role="grid">';
+    for (let i = 0; i < weeks * 7; i++) {
+      const d = addDays(i, start), iso = isoDay(d), ev = evOn(list, iso);
+      h += `<div class="cal-cell${d.getMonth() !== m ? ' out' : ''}${iso === todayISO ? ' today' : ''}" role="gridcell" tabindex="0" data-d="${iso}" aria-label="${d.toDateString()}, ${ev.length} events"><span class="cal-num">${d.getDate()}</span>${ev.slice(0, 2).map(e => `<button class="ev ${e.tone}" data-e="${e.id}" title="${esc(e.title)}">${esc(e.title)}</button>`).join('')}${ev.length > 2 ? `<span class="ev-more">+${ev.length - 2} more</span>` : ''}</div>`;
+    }
+    body.innerHTML = h + '</div>';
+  } else if (view === 'week') {
+    const s = addDays(-cur.getDay(), cur), e = addDays(6, s);
+    $('#title').textContent = `${s.toLocaleDateString('en-US', { month:'short', day:'numeric' })} – ${e.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}`;
+    body.innerHTML = '<div class="week-grid">' + Array.from({ length:7 }, (_, i) => { const d = addDays(i, s), iso = isoDay(d), ev = evOn(list, iso);
+      return `<div class="week-col${iso === todayISO ? ' today' : ''}" data-d="${iso}"><h4>${d.toLocaleDateString('en-US', { weekday:'short' })}<b>${d.getDate()}</b></h4>${ev.map(x => `<button class="ev ${x.tone}" data-e="${x.id}" style="white-space:normal;padding:6px 8px">${fmtT(x.start)}<br>${esc(x.title)}</button>`).join('') || '<span class="muted" style="font-size:12px">No events</span>'}</div>`; }).join('') + '</div>';
+  } else {
+    const iso = isoDay(cur), ev = evOn(list, iso);
+    $('#title').textContent = cur.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+    body.innerHTML = `<div class="day-list">${ev.map(x => `<div class="ev-card" data-e="${x.id}" tabindex="0"><div class="t-top"><span class="ev-tag ${x.tone}">${x.kind}</span><small>${fmtT(x.start)} - ${fmtT(x.end)}</small></div><b>${esc(x.title)}</b></div>`).join('') || '<div class="empty">Nothing scheduled. Click “New Event” to add something.</div>'}</div>`;
+  }
+  const up = list.filter(e => e.date >= todayISO).sort(byTime).slice(0, 5);
+  $('#upcoming').innerHTML = up.map(x => { const dl = x.date === todayISO ? 'Today' : x.date === isoDay(addDays(1)) ? 'Tomorrow' : new Date(x.date + 'T12:00').toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    return `<div class="ev-card" data-e="${x.id}" tabindex="0"><div class="t-top"><span class="ev-tag ${x.tone}">${x.kind}</span><small>${fmtT(x.start)} - ${fmtT(x.end)}</small></div><b>${esc(x.title)}</b><small class="muted">${dl}</small></div>`; }).join('') || '<div class="empty">No upcoming events.</div>';
+}
+function step(n) { if (view === 'month') cur = new Date(cur.getFullYear(), cur.getMonth() + n, 1, 12); else cur = addDays(n * (view === 'week' ? 7 : 1), cur); draw(); }
+$('#prev').onclick = () => step(-1); $('#next').onclick = () => step(1);
+$('#today').onclick = () => { cur = new Date(); cur.setHours(12, 0, 0, 0); draw(); };
+$('#views').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; view = b.dataset.v; $$('#views button').forEach(x => x.classList.toggle('on', x === b)); draw(); });
+$('#addBtn').onclick = () => F.event(draw, isoDay(cur));
+function open(id) {
+  const ev = D.events().find(x => x.id === id); if (!ev) return; const mine = E.store.get('events').some(x => x.id === id);
+  const m = E.modal({ title:ev.title, sub:`${ev.kind} · ${new Date(ev.date + 'T12:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })}`, cancel:'Close', submit:false,
+    html:`<dl class="dl"><dt>Time</dt><dd>${fmtT(ev.start)} - ${fmtT(ev.end)}</dd><dt>Type</dt><dd><span class="ev-tag ${ev.tone}">${ev.kind}</span></dd></dl>${mine ? '<div class="modal-foot" style="padding-top:0"><button class="btn btn-danger" id="delEv">Delete event</button></div>' : ''}` });
+  const d = m.el.querySelector('#delEv'); if (d) d.onclick = () => { E.store.set('events', E.store.get('events').filter(x => x.id !== id)); m.close(); draw(); E.toast('Event deleted', 'ok'); };
+}
+document.addEventListener('click', e => { const ev = e.target.closest('[data-e]'); if (ev) { e.stopPropagation(); return open(ev.dataset.e); } const c = e.target.closest('.cal-cell,.week-col'); if (c && c.dataset.d) F.event(draw, c.dataset.d); });
+document.addEventListener('keydown', e => { if (e.key !== 'Enter') return; const t = e.target; if (t.matches('.ev-card')) open(t.dataset.e); else if (t.matches('.cal-cell')) F.event(draw, t.dataset.d); });
+draw();
+
+</script>
+</body>
+</html>

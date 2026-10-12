@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings — Empowa360</title>
+<meta name="description" content="Manage company information, notifications, security, integrations, billing and API access.">
+<meta property="og:title" content="Settings — Empowa360">
+<meta property="og:description" content="Manage company information, notifications, security, integrations, billing and API access.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="js/theme.js"></script>
+<link rel="stylesheet" href="css/app.css"><link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="settings">
+<main class="main"><div class="page">
+  <div class="page-head"><div><h1>Settings</h1><p class="sub">Manage your account and application preferences</p></div></div>
+  <div class="set-layout">
+    <nav class="set-tabs" id="tabs" aria-label="Settings sections"><button data-t="general" class="on">General</button><button data-t="notifications">Notifications</button><button data-t="security">Security</button><button data-t="integrations">Integrations</button><button data-t="billing">Billing</button><button data-t="api">API</button></nav>
+    <div>
+      <section class="card set-panel on" id="p-general">
+        <div class="set-section"><h3>Company Information</h3><div class="form-grid">
+          <div class="field"><label for="s_name">Company name</label><input class="input" id="s_name" value="Empowa360"></div>
+          <div class="field"><label for="s_ind">Industry</label><select class="select" id="s_ind"><option>Technology &amp; SaaS</option><option>Financial Services</option><option>Healthcare</option><option>Retail</option><option>Manufacturing</option></select></div>
+          <div class="field"><label for="s_size">Company size</label><select class="select" id="s_size"><option>1-10 Employees</option><option>11-50 Employees</option><option selected>50-200 Employees</option><option>200-1000 Employees</option><option>1000+ Employees</option></select></div>
+          <div class="field"><label for="s_url">Website URL</label><input class="input" id="s_url" type="url" value="https://empowa360.com"><div class="err" id="e_url"></div></div></div></div>
+        <div class="set-section"><h3>Regional Settings</h3><div class="form-grid three">
+          <div class="field"><label for="s_tz">Timezone</label><select class="select" id="s_tz"><option selected>UTC -05:00 (Eastern Time)</option><option>UTC -08:00 (Pacific Time)</option><option>UTC +00:00 (London)</option><option>UTC +01:00 (Central Europe)</option><option>UTC +01:00 (West Africa)</option></select></div>
+          <div class="field"><label for="s_df">Date format</label><select class="select" id="s_df"><option>DD/MM/YYYY</option><option>MM/DD/YYYY</option><option>YYYY-MM-DD</option></select></div>
+          <div class="field"><label for="s_cur">Currency</label><select class="select" id="s_cur"><option>USD ($)</option><option>EUR (€)</option><option>GBP (£)</option><option>XAF (FCFA)</option></select></div></div></div>
+        <div class="set-section"><h3>Data Management</h3><div class="form-grid">
+          <div><b style="font-size:14px">Export account data</b><p class="muted" style="font-size:13px;margin:2px 0 12px">Download a complete archive of your system data in CSV format.</p><button class="btn btn-outline" id="exp">Export Data</button> <button class="btn btn-ghost" id="rst">Reset demo data</button></div>
+          <div><b class="danger-t">Delete workspace</b><p class="muted" style="font-size:13px;margin:2px 0 12px">Permanently delete all workspace data and historical files.</p><button class="btn btn-danger" id="del">Delete Account</button></div></div></div>
+        <div class="save-bar"><button class="btn btn-primary" id="saveGen">Save Changes</button></div>
+      </section>
+      <section class="card set-panel" id="p-notifications"><h3>Notification preferences</h3>
+        <div class="row-between"><div><b>New lead assigned</b><span>Email me when a lead is assigned to me</span></div><label class="switch"><input type="checkbox" id="n1" checked aria-label="New lead assigned"><i></i></label></div><div class="row-between"><div><b>Deal stage changes</b><span>Alert me when a deal moves stage</span></div><label class="switch"><input type="checkbox" id="n2" checked aria-label="Deal stage changes"><i></i></label></div><div class="row-between"><div><b>Overdue invoices</b><span>Daily summary of overdue invoices</span></div><label class="switch"><input type="checkbox" id="n3" checked aria-label="Overdue invoices"><i></i></label></div><div class="row-between"><div><b>Task assignments</b><span>Notify me when someone assigns me a task</span></div><label class="switch"><input type="checkbox" id="n4" checked aria-label="Task assignments"><i></i></label></div><div class="row-between"><div><b>Weekly digest</b><span>Pipeline summary every Monday morning</span></div><label class="switch"><input type="checkbox" id="n5"  aria-label="Weekly digest"><i></i></label></div><div class="row-between"><div><b>Product updates</b><span>News about new Empowa360 features</span></div><label class="switch"><input type="checkbox" id="n6"  aria-label="Product updates"><i></i></label></div>
+        <div class="save-bar"><button class="btn btn-primary" data-save>Save Changes</button></div></section>
+      <section class="card set-panel" id="p-security"><div class="set-section"><h3>Change password</h3><form id="pwf" class="form-grid" novalidate>
+          <div class="field" style="grid-column:1/-1"><label for="pw0">Current password</label><input class="input" id="pw0" type="password" autocomplete="current-password"></div>
+          <div class="field"><label for="pw1">New password</label><input class="input" id="pw1" type="password" autocomplete="new-password"><div class="err" id="e1"></div></div>
+          <div class="field"><label for="pw2">Confirm new password</label><input class="input" id="pw2" type="password" autocomplete="new-password"><div class="err" id="e2"></div></div>
+          <div class="save-bar" style="grid-column:1/-1;margin:0"><button class="btn btn-primary" type="submit">Update password</button></div></form></div>
+        <div class="set-section"><h3>Two-factor authentication</h3><div class="row-between"><div><b>Authenticator app</b><span>Require a one-time code at sign-in</span></div><label class="switch"><input type="checkbox" id="tfa"  aria-label="Authenticator app"><i></i></label></div></div>
+        <div class="set-section"><h3>Active sessions</h3><div id="sess"></div></div></section>
+      <section class="card set-panel" id="p-integrations"><h3>Connected apps</h3><div id="ints"></div></section>
+      <section class="card set-panel" id="p-billing"><h3>Plan &amp; billing</h3>
+        <div class="int-card"><span class="chip"><span id="bI"></span></span><div><b>Professional plan</b><span>$79 / month · 18 of 25 seats used</span></div><button class="btn btn-outline btn-sm" id="plan">Change plan</button></div>
+        <div style="margin:16px 0"><div class="bar"><i data-w="72"></i></div></div>
+        <div class="row-between"><div><b>Payment method</b><span>No card on file in this demo</span></div><button class="btn btn-outline btn-sm" id="card">Add card</button></div>
+        <div class="row-between"><div><b>Billing history</b><span>View and download past invoices</span></div><a class="btn btn-ghost btn-sm" href="invoices.html">Open invoices</a></div></section>
+      <section class="card set-panel" id="p-api"><h3>API access</h3>
+        <div class="field"><label for="key">Secret key</label><div class="key-box"><input class="input" id="key" readonly><button class="btn btn-outline" id="reveal">Reveal</button><button class="btn btn-outline" id="copy">Copy</button></div></div>
+        <div class="field" style="margin-top:16px"><label for="hook">Webhook URL</label><input class="input" id="hook" type="url" placeholder="https://example.com/webhooks/empowa360"></div>
+        <div class="save-bar"><button class="btn btn-outline" id="regen">Regenerate key</button><button class="btn btn-primary" data-save>Save Changes</button></div></section>
+    </div>
+  </div>
+</div></main>
+<script src="js/app.js"></script><script src="js/data.js"></script>
+<script>
+
+const { $, $$, icon, esc } = E;
+$('#bI').innerHTML = icon('card', 20);
+function tab(t) { $$('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t)); $$('.set-panel').forEach(p => p.classList.toggle('on', p.id === 'p-' + t)); history.replaceState(null, '', '#' + t); if (t === 'billing') E.bars($('#p-billing')); }
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) tab(b.dataset.t); });
+if (location.hash) tab(location.hash.slice(1));
+/* persist general */
+const S = E.store.get('settings', {}); ['s_name','s_ind','s_size','s_url','s_tz','s_df','s_cur'].forEach(id => { if (S[id]) $('#' + id).value = S[id]; });
+const save = async b => { const url = $('#s_url').value.trim(); $('#e_url').textContent = ''; if (url && !/^https?:\/\/.+\..+/.test(url)) { $('#e_url').textContent = 'Enter a valid URL starting with http(s)://'; $('#s_url').classList.add('bad'); return; } $('#s_url').classList.remove('bad');
+  await E.busy(b, 700); const o = {}; ['s_name','s_ind','s_size','s_url','s_tz','s_df','s_cur'].forEach(id => o[id] = $('#' + id).value); E.store.set('settings', o); E.toast('Settings saved', 'ok'); };
+$('#saveGen').onclick = e => save(e.currentTarget);
+$$('[data-save]').forEach(b => b.onclick = async () => { await E.busy(b, 600); E.toast('Preferences saved', 'ok'); });
+$('#exp').onclick = async e => { await E.busy(e.currentTarget, 700); E.download('empowa360-account-data.csv', E.csv([['Name','Company','Email','Status'], ...D.customers().slice(0, 500).map(c => [c.name,c.company,c.email,c.status])])); E.toast('Export ready (first 500 customers)', 'ok'); };
+$('#rst').onclick = () => E.confirm({ title:'Reset demo data?', body:'Removes customers, leads, tasks and other items you added in this browser.', confirm:'Reset', onConfirm:() => { E.store.reset(); E.toast('Demo data reset', 'ok'); } });
+$('#del').onclick = () => { const m = E.modal({ title:'Delete workspace', sub:'This cannot be undone. Type DELETE to confirm.', submit:'Delete workspace', danger:true, fields:[{ name:'c', label:'Confirmation', required:true, placeholder:'DELETE', span:true }], onSubmit:v => { if (v.c !== 'DELETE') { E.toast('Confirmation did not match', 'err'); return; } E.store.reset(); E.toast('Workspace deleted (demo). Redirecting…', 'ok'); setTimeout(() => location.href = 'login.html', 1200); } }); };
+/* security */
+$('#pwf').addEventListener('submit', async e => { e.preventDefault(); const a = $('#pw1').value, b = $('#pw2').value; $('#e1').textContent = a.length < 8 ? 'Use at least 8 characters' : ''; $('#e2').textContent = a !== b ? 'Passwords do not match' : ''; if (a.length < 8 || a !== b || !$('#pw0').value) { if (!$('#pw0').value) E.toast('Enter your current password', 'err'); return; } await E.busy(e.submitter, 800); e.target.reset(); E.toast('Password updated', 'ok'); });
+const SESS = [['This device','Chrome on macOS · New York · Active now',false],['iPhone 15','Safari on iOS · New York · 2 days ago',true],['Office desktop','Edge on Windows · Boston · 1 week ago',true]];
+const drawSess = () => $('#sess').innerHTML = SESS.map((s, i) => `<div class="row-between"><div><b>${s[0]}</b><span>${s[1]}</span></div>${s[2] ? `<button class="btn btn-outline btn-sm" data-r="${i}">Revoke</button>` : '<span class="pill green">Current</span>'}</div>`).join(''); drawSess();
+$('#sess').addEventListener('click', e => { const b = e.target.closest('[data-r]'); if (!b) return; SESS.splice(+b.dataset.r, 1); drawSess(); E.toast('Session revoked', 'ok'); });
+$('#tfa').addEventListener('change', e => E.toast(e.target.checked ? 'Two-factor enabled' : 'Two-factor disabled', 'ok'));
+/* integrations */
+const INT = [['HubSpot','Sync leads, contacts and field mappings',true,'users'],['Slack','Post deal alerts to a channel',false,'mail'],['Google Calendar','Two-way event sync',false,'calendar'],['Stripe','Collect invoice payments online',false,'card']];
+const ST = E.store.get('ints', INT.map(i => i[2]));
+const drawInt = () => $('#ints').innerHTML = INT.map((n, i) => `<div class="int-card"><span class="chip">${icon(n[3], 20)}</span><div><b>${n[0]}</b><span>${n[1]}</span></div>${ST[i] ? '<span class="pill green" style="margin-right:8px">Connected</span>' : ''}<button class="btn ${ST[i] ? 'btn-outline' : 'btn-primary'} btn-sm" data-i="${i}">${ST[i] ? 'Disconnect' : 'Connect'}</button></div>`).join(''); drawInt();
+$('#ints').addEventListener('click', async e => { const b = e.target.closest('[data-i]'); if (!b) return; const i = +b.dataset.i; await E.busy(b, 800); ST[i] = !ST[i]; E.store.set('ints', ST); drawInt(); E.toast(`${INT[i][0]} ${ST[i] ? 'connected' : 'disconnected'}`, 'ok'); });
+/* billing */
+$('#plan').onclick = () => E.modal({ title:'Change plan', fields:[{ name:'p', label:'Plan', type:'select', options:['Starter · $29/mo','Professional · $79/mo','Enterprise · Custom'], value:'Professional · $79/mo', span:true }], submit:'Update plan', onSubmit:v => E.toast(`Plan set to ${v.p.split(' ·')[0]}`, 'ok') });
+$('#card').onclick = () => E.toast('Card entry needs a payment processor such as Stripe. Connect it under Integrations.', 'info');
+/* api */
+const mk = () => 'e360_live_' + Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join('');
+let key = E.store.get('apikey', null) || mk(); E.store.set('apikey', key); let shown = false;
+const dk = () => $('#key').value = shown ? key : key.slice(0, 10) + '•'.repeat(22) + key.slice(-4); dk();
+$('#reveal').onclick = e => { shown = !shown; e.currentTarget.textContent = shown ? 'Hide' : 'Reveal'; dk(); };
+$('#copy').onclick = async () => { try { await navigator.clipboard.writeText(key); } catch (x) { const t = document.createElement('textarea'); t.value = key; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); } E.toast('API key copied', 'ok'); };
+$('#regen').onclick = () => E.confirm({ title:'Regenerate API key?', body:'The current key stops working immediately.', confirm:'Regenerate', danger:true, onConfirm:() => { key = mk(); E.store.set('apikey', key); dk(); E.toast('New API key generated', 'ok'); } });
+
+</script>
+</body>
+</html>

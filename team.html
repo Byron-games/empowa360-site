@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team — Empowa360</title>
+<meta name="description" content="Monitor team workload, availability and performance across departments.">
+<meta property="og:title" content="Team — Empowa360">
+<meta property="og:description" content="Monitor team workload, availability and performance across departments.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="js/theme.js"></script>
+<link rel="stylesheet" href="css/app.css"><link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="team">
+<main class="main"><div class="page">
+  <div class="page-head"><div><h1>Team Management</h1><p class="sub">Monitor workload, operations capability and organizational performance</p></div>
+    <div class="head-actions"><div class="search-field"><span id="sIc"></span><input class="input" id="q" type="search" placeholder="Search team…" aria-label="Search team" style="width:220px"></div><button class="btn btn-primary" id="addBtn"><span id="pIc"></span>Add Member</button></div></div>
+  <section id="stats"></section>
+  <div class="grid-3" id="grid"></div>
+</div></main>
+<script src="js/app.js"></script><script src="js/data.js"></script>
+<script>
+
+const { $, icon, esc, stats } = E;
+$('#sIc').innerHTML = icon('search', 16); $('#pIc').innerHTML = icon('plus', 16);
+stats('#stats', [
+  { label:'Total Members', icon:'users', count:18, delta:'Full load' },
+  { label:'Active Now', icon:'check', tone:'green', count:12, delta:'+4 now' },
+  { label:'Departments', icon:'folder', tone:'purple', count:5, delta:'On Track' },
+  { label:'Avg Performance', icon:'trend', tone:'amber', count:88.3, suffix:'%', decimals:1, delta:'+4.2%' }]);
+const PRES = { online:'Online', away:'Away', offline:'Offline' };
+function draw() {
+  const q = $('#q').value.trim().toLowerCase(), list = D.team().filter(m => !q || (m.name + m.role + m.dept).toLowerCase().includes(q));
+  $('#grid').innerHTML = list.length ? list.map((m, i) => `<article class="card member fade-in" style="animation-delay:${i * 40}ms"><div class="member-top"><span class="dept">${esc(m.dept)}</span><span class="status-dot ${m.presence}">${PRES[m.presence]}</span></div>
+    <div class="member-id">${E.avatar(m.name, 56)}<div><h3>${esc(m.name)}</h3><span>${esc(m.role)}</span></div></div>
+    <a class="muted" href="mailto:${esc(m.email)}" style="font-size:14px">${esc(m.email)}</a>
+    <div class="perf"><div class="bar"><i data-w="${m.perf}"></i></div><div><span>Avg. Performance</span><b>${m.perf}%</b></div></div>
+    <div class="member-foot"><a class="btn btn-outline btn-sm" href="profile.html?m=${encodeURIComponent(m.name)}">View Profile</a><button class="btn btn-primary btn-sm" data-a="${esc(m.name)}">Assign Task</button></div></article>`).join('') : '<div class="card empty" style="grid-column:1/-1">No team members match your search.</div>';
+  E.bars($('#grid'));
+}
+draw(); $('#q').addEventListener('input', draw);
+$('#addBtn').addEventListener('click', () => F.member(draw));
+$('#grid').addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (!b) return; const name = b.dataset.a;
+  E.modal({ title:`Assign task to ${name}`, sub:'It will appear on the Tasks page.', submit:'Assign task', fields:[{ name:'name', label:'Task name', required:true, span:true }, { name:'priority', label:'Priority', type:'select', options:['High','Medium','Low'], value:'Medium' }, { name:'due', label:'Due date', type:'date', required:true, value:E.isoDay(E.addDays(7)) }],
+    onSubmit:v => { E.store.push('tasks', { id:'t' + Date.now().toString(36), name:v.name, project:'Customer Portal', assignee:name, priority:v.priority, status:'To Do', due:v.due }); E.toast(`Task assigned to ${name}`, 'ok'); } }); });
+
+</script>
+</body>
+</html>
