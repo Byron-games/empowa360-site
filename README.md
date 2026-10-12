@@ -1,6 +1,6 @@
 # Empowa360: CRM website
 
-Built from your 16 Figma screens. Plain HTML, CSS and JavaScript. No build step, no framework.
+Plain HTML, CSS and JavaScript. No build step, no framework.
 
 ## Run it in VS Code
 1. `File → Open Folder…` and pick this folder.
@@ -55,13 +55,3 @@ The sidebar and top bar are rendered by `js/app.js` from one list (`NAV`), so ad
 - Landing-page customer logos and testimonials are the placeholder copy from your design. Use real, approved quotes.
 - Stat-card numbers are from your Figma; table rows come from `js/data.js`.
 - `sales@empowa360.com` (Enterprise "Contact Sales") is a placeholder address.
-
-## Deliberate changes from the Figma
-- Dashboard: "Upcoming Tasks" no longer overlaps the revenue chart.
-- Invoices: "ACTIONS" header no longer renders vertically.
-- Sales chart no longer overflows its card.
-- Nav highlight is correct on every page (Figma highlighted Tasks on Messages, Team on Profile).
-- One sidebar width across all pages (Figma mixed 202/220/240px).
-- Calendar shows the full month, not one week. Landing feature cards have icons.
-- Invoice numbers use the year of their dates (INV-2026-…).
-- Light theme matches the design; dark theme is new.
